@@ -43,12 +43,26 @@ layout = html.Div(
                             sort_action='custom',
                             sort_mode='multi',
                             sort_by=[],
+                            virtualization=True,
 
-                            style_cell={'padding': '5px'},
+                            fixed_rows={ 'headers': True, 'data': 0 },
+                            style_cell={ 'whiteSpace': 'normal'},
                             style_header={
                                 'backgroundColor': 'white',
                                 'fontWeight': 'bold'
                             },
+                            style_data_conditional=[
+                                {'if': {'column_id': 'UF'},
+                                'width': '20px'},
+                                {'if': {'column_id': 'cod_mun'},
+                                'width': '30px'},
+                                {'if': {'column_id': 'Município'},
+                                'width': '80px'},
+                                {'if': {'column_id': 'Cluster'},
+                                'width': '40px'}
+                            ]
+                            #style_table={'height': '500px', 'overflow': 'hidden'}
+                            ,
                             )
         ],style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
 

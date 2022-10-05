@@ -65,17 +65,17 @@ layout = html.Div(children=[
 
         html.Div(children=[
                     html.P(id='title-map', style={'text-align':'center'}),
-                    dcc.Graph(id='map_graph',style={'width':'700px', 'height':'700px'})
+                    dcc.Loading(dcc.Graph(id='map_graph',style={'width':'700px', 'height':'700px'}),type='circle')
         ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
 
         html.Div(children=[
                     html.P(id='title-map-socioeconomico', style={'text-align':'center'}),
-                    dcc.Graph(id='map-graph-economico',style={'width':'700px', 'height':'700px'})
+                    dcc.Loading(dcc.Graph(id='map-graph-economico',style={'width':'700px', 'height':'700px'}),type='circle')
         ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
 
          html.Div(children=[
                     html.P(id='title-map-oobr', style={'text-align':'center'}),
-                    dcc.Graph(id='map-graph-oobr',style={'width':'700px', 'height':'700px'})
+                     dcc.Loading(dcc.Graph(id='map-graph-oobr',style={'width':'700px', 'height':'700px'}),type='circle')
         ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
 
 ])
