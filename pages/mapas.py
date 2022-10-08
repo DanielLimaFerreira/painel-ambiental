@@ -1,9 +1,12 @@
 import dash
 import requests
+import numpy as np
 from dash import html, dcc, callback
 import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output
+import plotly.graph_objects as go
+
 
 dash.register_page(__name__,path='/mapas', name='mapas')
 
@@ -65,17 +68,17 @@ layout = html.Div(children=[
 
         html.Div(children=[
                     html.P(id='title-map', style={'text-align':'center'}),
-                    dcc.Loading(dcc.Graph(id='map_graph',style={'width':'700px', 'height':'700px'}),type='circle')
+                    dcc.Loading(dcc.Graph(id='map_graph',style={'width':'800px', 'height':'400px'}),type='circle')
         ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
 
         html.Div(children=[
                     html.P(id='title-map-socioeconomico', style={'text-align':'center'}),
-                    dcc.Loading(dcc.Graph(id='map-graph-economico',style={'width':'700px', 'height':'700px'}),type='circle')
+                    dcc.Loading(dcc.Graph(id='map-graph-economico',style={'width':'800px', 'height':'400px'}),type='circle')
         ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
 
          html.Div(children=[
                     html.P(id='title-map-oobr', style={'text-align':'center'}),
-                     dcc.Loading(dcc.Graph(id='map-graph-oobr',style={'width':'700px', 'height':'700px'}),type='circle')
+                    dcc.Loading(dcc.Graph(id='map-graph-oobr',style={'width':'800px', 'height':'400px'}),type='circle')
         ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
 
 ])
@@ -89,24 +92,16 @@ layout = html.Div(children=[
 )
 def update_map(ano, uf, column):
     snis_copy = snis_cleaned.copy()
-
     cod_estado = int(mun_info[mun_info['UF']==uf]['cod_UF'].values[0])
     response = requests.get(f'https://servicodados.ibge.gov.br/api/v2/malhas/{cod_estado}?resolucao=5&formato=application/vnd.geo+json')
     data = response.json()
-
-    #data = load_json(uf)
     selected_mun_snis = snis_cleaned.loc[(snis_cleaned['Estado'] == uf) & (snis_cleaned['Ano de Referência'] == ano)]['Município'].values
-
     geodata_mun = []
 
     for feature in data['features']:
-        #feature['id'] = feature['properties']['name']
-
         cod_mun = feature['properties']['codarea']
-
         nome_mun = mun_info[mun_info['cod_municipio']==int(cod_mun)]['municipio'].values[0]
         feature['id'] = nome_mun
-
         geodata_mun.append(feature['id'])
 
     if ano:
@@ -115,22 +110,17 @@ def update_map(ano, uf, column):
         snis_copy = snis_copy[snis_copy['Estado'] == uf]
 
     diff = {'Município': list(set(geodata_mun) - set(selected_mun_snis))}
-
+    min_value = snis_copy[column].min()
     snis_copy = snis_copy.append(pd.DataFrame(diff))
-    snis_copy.fillna(-1, inplace=True)
 
-    fig = px.choropleth(
-        snis_copy, 
-        locations = 'Município', #define the limits on the map/geography
-        geojson = data, #shape information
-        color = str(column), #defining the color of the scale through the database
-        hover_name = 'Município', #the information in the box
-        #hover_data =["Produção","Longitude","Latitude"],
-        labels={str(column):''}
-    )
-    fig.update_geos(fitbounds = "geojson", visible = False)
+    if snis_copy[column].isnull().sum() > 0:
+        gray_scale_value = min_value - 1e-5
+        snis_copy.fillna(gray_scale_value, inplace=True)
 
-    return fig
+    else:
+        gray_scale_value = np.nan
+
+    return generate_map(data, snis_copy, column, gray_scale_value)
 
 @callback(
     Output('title-map', 'children'),
@@ -147,45 +137,33 @@ def update_title(column):
 )
 def update_map_economico(uf, column):
     socioeconomico_copy = socioeconomico.copy()
-
     cod_estado = int(mun_info[mun_info['UF']==uf]['cod_UF'].values[0])
     response = requests.get(f'https://servicodados.ibge.gov.br/api/v2/malhas/{cod_estado}?resolucao=5&formato=application/vnd.geo+json')
     data = response.json()
-
     selected_mun = socioeconomico_copy.loc[(socioeconomico_copy['UF'] == cod_estado)]['Município'].values
-
     geodata_mun = []
 
     for feature in data['features']:
-        #feature['id'] = feature['properties']['name']
-
         cod_mun = feature['properties']['codarea']
-
         nome_mun = mun_info[mun_info['cod_municipio']==int(cod_mun)]['municipio'].values[0]
         feature['id'] = nome_mun
-
         geodata_mun.append(feature['id'])
 
     if uf:
         socioeconomico_copy = socioeconomico_copy[socioeconomico_copy['UF'] == cod_estado]
 
     diff = {'Município': list(set(geodata_mun) - set(selected_mun))}
-
+    min_value = socioeconomico_copy[column].min()
     socioeconomico_copy = socioeconomico_copy.append(pd.DataFrame(diff))
-    socioeconomico_copy.fillna(-1, inplace=True)
 
-    fig = px.choropleth(
-        socioeconomico_copy, 
-        locations = 'Município', #define the limits on the map/geography
-        geojson = data, #shape information
-        color = str(column), #defining the color of the scale through the database
-        hover_name = 'Município', #the information in the box
-        #hover_data =["Produção","Longitude","Latitude"],
-        labels={str(column):''}
-    )
-    fig.update_geos(fitbounds = "geojson", visible = False)
+    if socioeconomico_copy[column].isnull().sum() > 0:
+        gray_scale_value = min_value - 1e-5
+        socioeconomico_copy.fillna(gray_scale_value, inplace=True)
 
-    return fig
+    else:
+        gray_scale_value = np.nan
+
+    return generate_map(data, socioeconomico_copy, column, gray_scale_value)
 
 @callback(
     Output('title-map-socioeconomico', 'children'),
@@ -203,23 +181,16 @@ def update_title(column):
 )
 def update_map_oobr(ano, uf, column):
     oobr_copy = oobr.copy()
-
     cod_estado = int(mun_info[mun_info['UF']==uf]['cod_UF'].values[0])
     response = requests.get(f'https://servicodados.ibge.gov.br/api/v2/malhas/{cod_estado}?resolucao=5&formato=application/vnd.geo+json')
     data = response.json()
-
     selected_mun = oobr_copy.loc[(oobr_copy['UF'] == uf) & (oobr_copy['Ano'] == ano)]['Município'].values
-
     geodata_mun = []
 
     for feature in data['features']:
-        #feature['id'] = feature['properties']['name']
-
         cod_mun = feature['properties']['codarea']
-
         nome_mun = mun_info[mun_info['cod_municipio']==int(cod_mun)]['municipio'].values[0]
         feature['id'] = nome_mun
-
         geodata_mun.append(feature['id'])
 
     if uf:
@@ -229,22 +200,17 @@ def update_map_oobr(ano, uf, column):
         oobr_copy = oobr_copy[oobr_copy['Ano'] == ano]
 
     diff = {'Município': list(set(geodata_mun) - set(selected_mun))}
-
+    min_value = oobr_copy[column].min()
     oobr_copy = oobr_copy.append(pd.DataFrame(diff))
-    oobr_copy.fillna(-1, inplace=True)
 
-    fig = px.choropleth(
-        oobr_copy, 
-        locations = 'Município', #define the limits on the map/geography
-        geojson = data, #shape information
-        color = str(column), #defining the color of the scale through the database
-        hover_name = 'Município', #the information in the box
-        #hover_data =["Produção","Longitude","Latitude"],
-        labels={str(column):''}
-    )
-    fig.update_geos(fitbounds = "geojson", visible = False)
+    if oobr_copy[column].isnull().sum() > 0:
+        gray_scale_value = min_value - 1e-5
+        oobr_copy.fillna(gray_scale_value, inplace=True)
 
-    return fig
+    else:
+        gray_scale_value = np.nan
+
+    return generate_map(data, oobr_copy, column, gray_scale_value)
 
 @callback(
     Output('title-map-oobr', 'children'),
@@ -252,3 +218,48 @@ def update_map_oobr(ano, uf, column):
 )
 def update_title(column):
     return  str(column)
+
+
+def generate_map(geojson, dataset, column, gray_scale_value):
+
+    if not np.isnan(gray_scale_value):
+        color_legend = [[0, "rgb(160, 160, 160)"],
+                        [1e-10, "rgb(49,54,149)"],
+                        [0.1111111111111111, "rgb(69,117,180)"],
+                        [0.2222222222222222, "rgb(116,173,209)"],
+                        [0.3333333333333333, "rgb(171,217,233)"],
+                        [0.4444444444444444, "rgb(224,243,248)"],
+                        [0.5555555555555555, "rgb(254,224,144)"],
+                        [0.6666666666666666, "rgb(253,174,97)"],
+                        [0.7777777777777777, "rgb(244,109,67)"],
+                        [0.8888888888888888, "rgb(215,48,39)"],
+                        [1, "rgb(165,0,38)"]]
+
+    else:
+        color_legend = [[0, "rgb(49,54,149)"],
+                        [0.1111111111111111, "rgb(69,117,180)"],
+                        [0.2222222222222222, "rgb(116,173,209)"],
+                        [0.3333333333333333, "rgb(171,217,233)"],
+                        [0.4444444444444444, "rgb(224,243,248)"],
+                        [0.5555555555555555, "rgb(254,224,144)"],
+                        [0.6666666666666666, "rgb(253,174,97)"],
+                        [0.7777777777777777, "rgb(244,109,67)"],
+                        [0.8888888888888888, "rgb(215,48,39)"],
+                        [1, "rgb(165,0,38)"]]
+
+
+    fig = go.Figure(data=go.Choropleth(
+        geojson=geojson,
+        locations=dataset['Município'],
+        z=dataset[column],
+        marker_line_color='white',
+        marker_line_width=0.5,
+        colorscale=color_legend,
+        hovertemplate=np.select(
+                [dataset[column] == gray_scale_value], ["%{location}<extra>--</extra>"], "%{location}<extra>%{z}</extra>"
+        ),
+    ))
+    fig.update_geos(fitbounds = "locations", visible = False)
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+    return fig
