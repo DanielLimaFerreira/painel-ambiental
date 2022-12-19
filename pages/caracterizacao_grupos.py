@@ -36,7 +36,8 @@ layout = html.Div(children=[
                     dcc.Dropdown(id='ano_cluster',
                             options=[{'label':ano,'value':ano} for ano in anos],
                             style={'width':'300px',  'margin-bottom':'20px'},
-                            value=2019),
+                            value=2019,
+                            clearable=False),
                     html.P('Selecione a variável ambiental:', style={'font-weight': 'bold','margin':'8px'}),
                     dcc.Dropdown(id='snis_column',
                             options=[{'label':'IN013','value':'IN013 - Índice de perdas faturamento'},
@@ -48,18 +49,21 @@ layout = html.Div(children=[
                                     {'label':'PORC2','value':'PORC2 - Porcentagem da população total atendida com esgotamento sanitário'}
                                     ],
                             style={'width':'300px',  'margin-bottom':'20px'},
-                            value='PORC1 - Porcentagem da população total atendida com abastecimento de água'),
+                            value='PORC1 - Porcentagem da população total atendida com abastecimento de água',
+                            clearable=False),
                     html.P('Selecione a variável obstétrica:', style={'font-weight': 'bold','margin':'8px'}),
                     dcc.Dropdown(id='oobr_column',
                             options=oobr_columns,
                             style={'width':'300px', 'margin-bottom':'20px'},
-                            value='Porc_anomalias'),
+                            value='Porc_anomalias',
+                            clearable=False),
                     
                     html.P('Selecione a variável socioeconômica:', style={'font-weight': 'bold','margin':'8px'}),
                     dcc.Dropdown(id='column_socioeconomico_bar',
                             options=socioeconomico_columns,
                             style={'width':'300px',  'margin-bottom':'20px'},
-                            value='T_ANALF18M'),
+                            value='T_ANALF18M',
+                            clearable=False),
 
                 ], style={'width':'350px', 'height':'500px', 'display':'inline-block', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)', 'text-align': 'left'}
             ),xs = 12, sm=12, md=4, lg=4

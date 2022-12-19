@@ -11,7 +11,7 @@ layout = html.Div(children=[
 
     html.P('''Sua construção se baseou na necessidade de visualização do relacionamento entre variáveis socioambientais e as obstétricas.
     Para sua construção, foram utilizadas as variáveis socioeconômicas e a classificação dos municípios em cinco grupos encontrados em Siqueira et al. (2021).
-    Dessa maneira, é possível visualizar, de forma sistêmica, quais municípios pertencem a um mesmo grupo e quais municípios enquadram-se em condições socioeconômicas diferenciadas e comparar com o as variáveis de saneamento e de saúde obstétrica.
+    Dessa maneira, é possível visualizar, de forma sistêmica, quais municípios pertencem a um mesmo grupo e quais municípios enquadram-se em condições socioeconômicas diferenciadas e comparar com as variáveis de saneamento e de saúde obstétrica.
     '''),
     html.P(children=['Para visualização das condições de saneamento básico, foram utilizados dados desagregados do Sistema Nacional de Informações sobre Saneamento ',
            html.A(children='SNIS',href='https://www.gov.br/mdr/pt-br/assuntos/saneamento/snis',target="_blank"),
