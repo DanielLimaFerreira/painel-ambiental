@@ -18,7 +18,8 @@ navbar = dbc.Navbar(
         html.Div([html.H4("Painel Ambiental")],style={'display':'inline-block','margin':'15px'},),
         html.Div([dbc.Button(children=icon, outline=True, size='lg',id="btn_sidebar")],style={'display':'inline-block'})
     ],className='head-banner'),
-    dark=True
+    dark=True,
+    style={'z-index':'2'}
     )
 
 sidebar = html.Div(
@@ -31,11 +32,11 @@ sidebar = html.Div(
                 dbc.NavLink("Mapas", href=dash.page_registry['pages.mapas']['path'], id="mapas"),
             ],
             vertical=True,
-            pills=True
+            pills=True,
         ),
     ],
     id="sidebar",
-    className='sidebar-style'
+    className='sidebar-style', style={'z-index':'1'}
 ) 
 
 content = html.Div([dash.page_container],
