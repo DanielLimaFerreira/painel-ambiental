@@ -3,6 +3,7 @@ import pandas as pd
 from dash import html, dcc, callback, Input, Output
 from dash.dash_table import FormatTemplate
 from dash import dash_table as dt
+import dash_bootstrap_components as dbc
 
 dash.register_page(__name__, path='/dados-faltantes', name='dados-faltantes')
 
@@ -33,45 +34,59 @@ percentage = FormatTemplate.percentage(2)
 d_columns = [{'name': i, 'id': i} for i in quality_data.columns if i == 'Coluna']
 d_columns += [{'name': i, 'id': i, 'type':'numeric', 'format': percentage} for i in quality_data.columns if i != 'Coluna']
 
-layout = html.Div(
-    children=[
-        html.Div(
-        children=[
-            html.H2('Filtros'),
-            html.Br(),
-            html.P('Selecione o Estado:',style={'font-weight': 'bold'}),
-            dcc.Dropdown(id='estados',
-                        options=[{'label':estado,'value':estado} for estado in estados],
-                        style={'width':'200px', 'margin-bottom':'20px'}),
-            html.P('Selecione o ano:',style={'font-weight': 'bold'}),
-            dcc.Dropdown(id='ano-qualidade',
-                        options=[{'label':ano,'value':ano} for ano in anos],
-                        style={'width':'200px', 'margin':'0 auto'},
-                        value=2019),            
-        ], style={'width':'250px', 'height':'360px', 'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)', 'text-align': 'center'}
-        ),
-        html.Div(
+layout = html.Div(children=[
+    dbc.Row([
+        dbc.Col(
+            html.Div(
             children=[
-                dt.DataTable(id='data-table',
-                            columns = d_columns,
-                            data = quality_data.to_dict('records'),
-                            cell_selectable = False,
-                            sort_action = 'native',
-                            style_as_list_view=True,
-                            style_cell={'padding': '5px'},
-                            style_header={
-                                'backgroundColor': 'white',
-                                'fontWeight': 'bold'
-                            },
-                            style_cell_conditional=[
-                                {
-                                    'if': {'column_id': c},
-                                    'textAlign': 'left'
-                                } for c in ['Date', 'Region']
-                            ]),  
-            ], style={'display':'inline-block', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}
+                html.H2('Filtros'),
+                html.Br(),
+                html.P('Selecione o Estado:',style={'font-weight': 'bold'}),
+                dcc.Dropdown(id='estados',
+                            options=[{'label':estado,'value':estado} for estado in estados],
+                            style={'width':'200px', 'margin-bottom':'20px'}),
+                html.P('Selecione o ano:',style={'font-weight': 'bold'}),
+                dcc.Dropdown(id='ano-qualidade',
+                            options=[{'label':ano,'value':ano} for ano in anos],
+                            style={'width':'200px', 'margin':'0 auto'},
+                            value=2019),            
+            ], style={'width':'250px', 'height':'360px', 'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)', 'text-align': 'center'}
+            ),xs = 12, sm=12, md=2, lg=2
+        ),
+        dbc.Col(html.Div(),xs = 0, sm=0, md=1, lg=1),
+
+        dbc.Col(
+            html.Div(
+                children=[
+                    html.P('Verificação da porcentagem de valores nulos e de zeros para cada variável selecionada do SNIS, sendo possível aplicar filtros por Estado e ano.'),
+                    html.Br(),
+                    dt.DataTable(id='data-table',
+                                columns = d_columns,
+                                data = quality_data.to_dict('records'),
+                                cell_selectable = False,
+                                sort_action = 'native',
+                                style_as_list_view=True,
+                                style_cell={'padding': '5px',
+                                            'height': 'auto',
+                                            'minWidth': '90px',
+                                            'width': '110px', 
+                                            'maxWidth': '130px',
+                                            'whiteSpace': 'normal'},
+                                style_header={
+                                    'backgroundColor': 'white',
+                                    'fontWeight': 'bold'
+                                },
+                                style_cell_conditional=[
+                                    {
+                                        'if': {'column_id': c},
+                                        'textAlign': 'left'
+                                    } for c in ['Date', 'Region']
+                                ]),  
+                ], style={'display':'inline-block', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'},
+            ),xs = 12, sm=12, md=8, lg=8
         )
-    ], )
+    ])
+])
 
 @callback(
     Output('data-table','data'),

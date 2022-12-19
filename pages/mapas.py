@@ -1,3 +1,4 @@
+from turtle import width
 import dash
 import requests
 import numpy as np
@@ -5,6 +6,7 @@ from dash import html, dcc, callback
 import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 
 
@@ -25,51 +27,66 @@ socioeconomico_columns =  [{'label':i,'value':i} for i in socioeconomico.columns
 mun_info = pd.read_csv('data/mun_info.csv')
 
 layout = html.Div(children=[
-    html.Div(
-            children=[
-                html.H2('Filtros'),
-                html.Br(),
-                html.P('Selecione o ano:',style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='ano',
-                        options=[{'label':ano,'value':ano} for ano in anos],
-                        style={'width':'300px', 'margin-bottom':'20px'},
-                        value=2019),
-                html.P('Selecione o Estado:',style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='uf',
-                        options=[{'label':estado,'value':estado} for estado in estados],
-                        style={'width':'300px', 'margin-bottom':'20px'},
-                        value='SP'),
-                html.P('Selecione a coluna do snis:',style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='column',
-                        options=[{'label':'IN013','value':'IN013 - Índice de perdas faturamento'},
-                                 {'label':'IN016','value':'IN016 - Índice de tratamento de esgoto'},
-                                 {'label':'IN022','value':'IN022 - Consumo médio percapita de água'},
-                                 {'label':'IN049','value':'IN049 - Índice de perdas na distribuição'},
-                                 {'label':'IN052','value':'IN052 - Índice de consumo de água'},
-                                 {'label':'PORC1','value':'PORC1 - Porcentagem da população total atendida com abastecimento de água'},
-                                 {'label':'PORC2','value':'PORC2 - Porcentagem da população total atendida com esgotamento sanitário'}
-                                 ],
-                        style={'width':'300px', 'margin-bottom':'20px'},
-                        value='PORC1 - Porcentagem da população total atendida com abastecimento de água'),
-                html.P('Selecione a coluna socioeconômica:',style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='column_socioeconomico_map',
-                        options=socioeconomico_columns,
-                        style={'width':'300px', 'margin-bottom':'20px'},
-                        value='T_ANALF18M'),
+    
+    dbc.Row(
+        [
+            dbc.Col(
+                html.Div(
+                        children=[
+                            html.H2('Filtros'),
+                            html.Br(),
+                            html.P('Visualize os valores das variáveis selecionadas para os municípios de cada Estado e ano.'),
 
-                html.P('Selecione a coluna obstétrica:',style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='column_oobr_map',
-                        options=oobr_columns,
-                        style={'width':'300px',  'margin-bottom':'20px'},
-                        value='Porc_anomalias'),
-                
-            ], style={'width':'350px', 'height':'600px', 'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)', 'text-align': 'left'}
-        ),
+                            html.P('Selecione o ano:',style={'font-weight': 'bold','margin':'8px'}),
+                            dcc.Dropdown(id='ano',
+                                    options=[{'label':ano,'value':ano} for ano in anos],
+                                    style={'width':'300px', 'margin-bottom':'20px'},
+                                    value=2019),
+                            html.P('Selecione o Estado:',style={'font-weight': 'bold','margin':'8px'}),
+                            dcc.Dropdown(id='uf',
+                                    options=[{'label':estado,'value':estado} for estado in estados],
+                                    style={'width':'300px', 'margin-bottom':'20px'},
+                                    value='SP'),
+                            html.P('Selecione a coluna do snis:',style={'font-weight': 'bold','margin':'8px'}),
+                            dcc.Dropdown(id='column',
+                                    options=[{'label':'IN013','value':'IN013 - Índice de perdas faturamento'},
+                                            {'label':'IN016','value':'IN016 - Índice de tratamento de esgoto'},
+                                            {'label':'IN022','value':'IN022 - Consumo médio percapita de água'},
+                                            {'label':'IN049','value':'IN049 - Índice de perdas na distribuição'},
+                                            {'label':'IN052','value':'IN052 - Índice de consumo de água'},
+                                            {'label':'PORC1','value':'PORC1 - Porcentagem da população total atendida com abastecimento de água'},
+                                            {'label':'PORC2','value':'PORC2 - Porcentagem da população total atendida com esgotamento sanitário'}
+                                            ],
+                                    style={'width':'300px', 'margin-bottom':'20px'},
+                                    value='PORC1 - Porcentagem da população total atendida com abastecimento de água'),
+                            html.P('Selecione a coluna socioeconômica:',style={'font-weight': 'bold','margin':'8px'}),
+                            dcc.Dropdown(id='column_socioeconomico_map',
+                                    options=socioeconomico_columns,
+                                    style={'width':'300px', 'margin-bottom':'20px'},
+                                    value='T_ANALF18M'),
 
-        html.Div(children=[
-                    html.P(id='title-map', style={'text-align':'center'}),
-                    dcc.Loading(dcc.Graph(id='map_graph',style={'width':'800px', 'height':'400px'}),type='circle')
-        ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
+                            html.P('Selecione a coluna obstétrica:',style={'font-weight': 'bold','margin':'8px'}),
+                            dcc.Dropdown(id='column_oobr_map',
+                                    options=oobr_columns,
+                                    style={'width':'300px',  'margin-bottom':'20px'},
+                                    value='Porc_anomalias'),
+                            
+                        ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)', 'text-align': 'left'}
+                ),xs = 12, sm=12, md=6, lg=3
+            ),
+            dbc.Col(html.Div(),xs = 0, sm=0, md=1, lg=1),
+
+            dbc.Col(
+                html.Div(children=[
+                        html.P(id='title-map', style={'text-align':'center'}),
+                        dcc.Loading(dcc.Graph(id='map_graph',responsive=True),type='circle')
+                ], style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}
+                ),xs=12, sm=12, md=12, lg=8
+            )
+        ]
+    ),
+
+       
 
         html.Div(children=[
                     html.P(id='title-map-socioeconomico', style={'text-align':'center'}),

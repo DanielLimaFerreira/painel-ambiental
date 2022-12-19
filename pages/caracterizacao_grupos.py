@@ -5,6 +5,7 @@ from dash import dash_table as dt
 from dash import html, callback
 from dash.dependencies import Input, Output
 import plotly.express as px
+import dash_bootstrap_components as dbc
 
 
 dash.register_page(__name__, path='/caracterizacao-dos-grupos', name='caracterizacao-dos-grupos')
@@ -24,9 +25,50 @@ socioeconomico_columns =  [{'label':i,'value':i} for i in socioeconomico.columns
 
 mun_info = pd.read_csv('data/mun_info.csv')
 
-layout = html.Div(
-    children=[
+layout = html.Div(children=[
+    dbc.Row([
+        dbc.Col(
+            html.Div(
+                children=[
+                    html.H2('Filtros'),
+                    html.Br(),
+                    html.P('Selecione o ano:',style={'font-weight': 'bold','margin':'8px'}),
+                    dcc.Dropdown(id='ano_cluster',
+                            options=[{'label':ano,'value':ano} for ano in anos],
+                            style={'width':'300px',  'margin-bottom':'20px'},
+                            value=2019),
+                    html.P('Selecione a variável ambiental:', style={'font-weight': 'bold','margin':'8px'}),
+                    dcc.Dropdown(id='snis_column',
+                            options=[{'label':'IN013','value':'IN013 - Índice de perdas faturamento'},
+                                    {'label':'IN016','value':'IN016 - Índice de tratamento de esgoto'},
+                                    {'label':'IN022','value':'IN022 - Consumo médio percapita de água'},
+                                    {'label':'IN049','value':'IN049 - Índice de perdas na distribuição'},
+                                    {'label':'IN052','value':'IN052 - Índice de consumo de água'},
+                                    {'label':'PORC1','value':'PORC1 - Porcentagem da população total atendida com abastecimento de água'},
+                                    {'label':'PORC2','value':'PORC2 - Porcentagem da população total atendida com esgotamento sanitário'}
+                                    ],
+                            style={'width':'300px',  'margin-bottom':'20px'},
+                            value='PORC1 - Porcentagem da população total atendida com abastecimento de água'),
+                    html.P('Selecione a variável obstétrica:', style={'font-weight': 'bold','margin':'8px'}),
+                    dcc.Dropdown(id='oobr_column',
+                            options=oobr_columns,
+                            style={'width':'300px', 'margin-bottom':'20px'},
+                            value='Porc_anomalias'),
+                    
+                    html.P('Selecione a variável socioeconômica:', style={'font-weight': 'bold','margin':'8px'}),
+                    dcc.Dropdown(id='column_socioeconomico_bar',
+                            options=socioeconomico_columns,
+                            style={'width':'300px',  'margin-bottom':'20px'},
+                            value='T_ANALF18M'),
+
+                ], style={'width':'350px', 'height':'500px', 'display':'inline-block', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)', 'text-align': 'left'}
+            ),xs = 12, sm=12, md=4, lg=4
+        ),
+        dbc.Col(html.Div(),xs = 0, sm=0, md=1, lg=1),
+        dbc.Col(
         html.Div(children=[
+            html.P('Análise exploratória nas variáveis ambientais de saneamento, juntamente com as variáveis obstétricas e socioeconômicas. Possibilitando comparar seus valores para cada grupo de municípios.'),
+            html.Br(),
             dt.DataTable(id='cluster-table',
                             columns = [{'name': i, 'id': i} for i in cluster.columns],
                             data = cluster.to_dict('records'),
@@ -55,52 +97,18 @@ layout = html.Div(
                                 {'if': {'column_id': 'UF'},
                                 'width': '20px'},
                                 {'if': {'column_id': 'cod_mun'},
-                                'width': '30px'},
+                                'width': '20px'},
                                 {'if': {'column_id': 'Município'},
-                                'width': '80px'},
+                                'width': '20px'},
                                 {'if': {'column_id': 'Cluster'},
                                 'width': '40px'}
                             ]
-                            #style_table={'height': '500px', 'overflow': 'hidden'}
-                            ,
-                            )
-        ],style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),
-
-        html.Div(
-            children=[
-                html.H2('Filtros'),
-                html.Br(),
-                html.P('Selecione o ano:',style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='ano_cluster',
-                        options=[{'label':ano,'value':ano} for ano in anos],
-                        style={'width':'300px',  'margin-bottom':'20px'},
-                        value=2019),
-                html.P('Selecione a variável ambiental:', style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='snis_column',
-                        options=[{'label':'IN013','value':'IN013 - Índice de perdas faturamento'},
-                                 {'label':'IN016','value':'IN016 - Índice de tratamento de esgoto'},
-                                 {'label':'IN022','value':'IN022 - Consumo médio percapita de água'},
-                                 {'label':'IN049','value':'IN049 - Índice de perdas na distribuição'},
-                                 {'label':'IN052','value':'IN052 - Índice de consumo de água'},
-                                 {'label':'PORC1','value':'PORC1 - Porcentagem da população total atendida com abastecimento de água'},
-                                 {'label':'PORC2','value':'PORC2 - Porcentagem da população total atendida com esgotamento sanitário'}
-                                 ],
-                        style={'width':'300px',  'margin-bottom':'20px'},
-                        value='PORC1 - Porcentagem da população total atendida com abastecimento de água'),
-                html.P('Selecione a variável obstétrica:', style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='oobr_column',
-                        options=oobr_columns,
-                        style={'width':'300px', 'margin-bottom':'20px'},
-                        value='Porc_anomalias'),
                 
-                html.P('Selecione a variável socioeconômica:', style={'font-weight': 'bold','margin':'8px'}),
-                dcc.Dropdown(id='column_socioeconomico_bar',
-                        options=socioeconomico_columns,
-                        style={'width':'300px',  'margin-bottom':'20px'},
-                        value='T_ANALF18M'),
-
-            ], style={'width':'350px', 'height':'500px', 'display':'inline-block', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)', 'text-align': 'left'}
-        ),
+                            ,
+                        )
+        ],style={'display':'inline-block', 'vertical-align':'top', 'padding':'20px', 'margin':'20px','background-color': 'rgb(255,255,255)'}),xs = 12, sm=12, md=6, lg=6
+        )
+    ]),
 
         html.Div(
             id='cluster-plot' 
